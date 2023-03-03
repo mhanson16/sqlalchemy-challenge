@@ -161,6 +161,36 @@ def start(start):
 
     return jsonify(start_date_data)
 
+
+@app.route("/api/v1.0/<start>/<end>")
+def start_end(start,end):
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+
+    # Return a JSON list of the minimum temperature, 
+    # the average temperature, and the maximum temperature for a specified start
+
+    # start and end date variable declared
+    start = dt.date(2010,1,1)
+    end = dt.date(2017,8,23)
+
+    date = session.query(func.min(measurement.tobs), func.max(measurement.tobs), 
+                               func.avg(measurement.tobs)).filter(measurement.date >= start).filter(measurement.date >= end).all()
+    
+    session.close()
+
+    #list to show max, min, and  avg for start date
+    start_end_date_data = []
+    for min, max, avg in date:
+        start_date_list = {}
+        start_date_list["Minimum Temperature"] = min
+        start_date_list["Maximum Temperature"] = max
+        start_date_list["Average Temperature"] = avg
+        start_end_date_data.append(start_date_list)
+
+    return jsonify(start_end_date_data)
+
+
 if __name__ == "__main__":
     app.run(debug=True)
 
